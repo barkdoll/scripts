@@ -35,7 +35,7 @@ def isNumber(s):
 
 def logSkipped(file_list, query_name):
 	with open(OUTPUT_DIR + 'SKIPPED_'
-           + query_name.replace('txt', 'log'), 'wb') as skip_log:
+    + query_name.replace('txt', 'log'), 'wb') as skip_log:
 		skip_log.write('Files skipped in source directory {}\n'
                  .format(DATA_DIR).encode())
 		for idx, fname in enumerate(file_list):
@@ -107,13 +107,14 @@ print('Here\'s Rexy-boy (regex pattern):', rex)
 print('Search target:', DATA_DIR)
 print('Mining for golden Anki nuggets...\n')
 
-file_counter, match_counter, file_match, dir_counter = 0, 0, 0, 0
+file_counter, file_match, match_count, unfiltered = 0, 0, 0, 0
 skipped = []
 # The search and data processing; a.k.a. the heavy lifting
 for file in tqdm(os.listdir(DATA_DIR)):
 	if Path(DATA_DIR + file).is_file():
 		file_counter += 1
 
+	if (DATA_DIR + file).lower().endswith('.txt'):
 		with open(DATA_DIR + file, 'rb') as currentFile:
 			try:
 				text = currentFile.read().decode('utf-8')
@@ -127,19 +128,18 @@ for file in tqdm(os.listdir(DATA_DIR)):
 				# when multiple argument search words are given,
 				# the first (zero) index of each tuple is always the full sentence.
 				matches = [x[0].strip('\r\n 　') for x in re.findall(rex, text)]
+				unfiltered += len(matches)
 				# Removes matches larger than the specified character limit
 				trimmed = [sentence for sentence in matches
-                                    if len(sentence) <= int(upper_limit)]
+                  	if len(sentence) <= int(upper_limit)]
 
-				for s in trimmed:
-					match_counter += 1
+				match_count += len(trimmed)
 
 				# Additional processing to enumerate
 				# if multiple matches are found
 				if (len(trimmed) > 1):
 					trimmed = ['{}. {}'.format(str(i+1).zfill(2), x)
-                                            for i, x in enumerate(trimmed)]
-
+                    	for i, x in enumerate(trimmed)]
 				# This is only needed because all matches could be
 				# thrown out if they are above the character limit
 				if not trimmed:
@@ -148,11 +148,9 @@ for file in tqdm(os.listdir(DATA_DIR)):
 					file_name = file.split('.txt')[0]
 
 					# Special file name format processing
-					# for the 3000+ book repo
 					# name format: TITLE // AUTHOR（著）
-					# ==== uncomment below to activate ====
 					file_name = re.sub(
-						r"(?P<author>.+)[－-](?P<title>.+)",
+						r"(?P<author>.+) –– (?P<title>.+)",
 						r'\g<title> // \g<author>（著）',
 						file_name
 					)
@@ -167,39 +165,36 @@ for file in tqdm(os.listdir(DATA_DIR)):
 
 					content = '\n'.join(blob).encode('utf-8')
 					open(output_file, 'ab').write(content)
-	elif Path(DATA_DIR + file).is_dir():
-		dir_counter += 1
-
+	else:
+		skipped.append(file)
 
 print('')
-if dir_counter > 0:
-	print('Directories ignored:', dir_counter)
-
-print('Files found:', colored(file_counter, 'cyan'))
+print('Files found:\t\t', colored(file_counter, 'cyan'))
 
 skip_print_count = colored(len(skipped), 'red') \
 	if len(skipped) > 0 else colored('0', 'cyan')
-print('Files skipped:', skip_print_count)
+print('Files skipped:\t\t', skip_print_count)
 if len(skipped) > 0:
 	logSkipped(skipped, output_basename)
 
-print('Files scanned:', colored(file_counter - len(skipped), 'cyan'))
-print('Files matched:', colored(file_match, 'cyan'))
-print('Matches found:', colored(match_counter, 'cyan'))
+print('Files scanned:\t\t', colored(file_counter - len(skipped), 'cyan'))
+print('Files matched:\t\t', colored(file_match, 'cyan'))
+print('Matches found:\t\t', colored(unfiltered, 'cyan'))
+print('Matches limited:\t', colored(unfiltered - match_count, 'cyan'))
+print('Matches kept:\t\t', colored(match_count, 'cyan'))
 
 # Print completion statement with operation time
 completed_time = time.time() - start_time
 if completed_time < 60:
 	print(colored('COMPLETED', 'green') + ' extraction in '
-            + colored('{0:.1f} seconds'.format(completed_time), 'green'))
+        + colored('{0:.1f} seconds'.format(completed_time), 'green'))
 else:
 	m = int(completed_time / 60)
 	s = int(completed_time % 60)
 	print(colored('COMPLETED', 'green') + ' extraction in '
-            + colored('{}m {}s'.format(m, str(s).zfill(2)), 'green'))
+        + colored('{}m {}s'.format(m, str(s).zfill(2)), 'green'))
 
 print('')
-
 # opens output file in your favorite text editor
 # change the path to the editor path on your machine
 if i_want_to_open_the_output_file_in_my_text_editor:
