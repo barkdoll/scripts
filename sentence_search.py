@@ -151,7 +151,7 @@ for file in tqdm(os.listdir(DATA_DIR)):
 					# name format: TITLE // AUTHOR（著）
 					file_name = re.sub(
 						r"(?P<author>.+) –– (?P<title>.+)",
-						r'\g<title> // \g<author>（著）',
+						r'\g<title>　//　\g<author>（著）',
 						file_name
 					)
 					file_name = re.sub(
