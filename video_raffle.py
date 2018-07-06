@@ -7,7 +7,6 @@
 
 import os
 import random
-import subprocess
 import psutil
 from pathlib import Path
 
@@ -34,8 +33,10 @@ def playerRunning(player):
 def generateDirList(data_path_list):
 	dir_list = []
 	for root_folder in data_path_list:
-		dir_list += [os.path.join(root_folder, d) for d in os.listdir(root_folder)
-                    if Path(root_folder+d).is_dir()]
+		dir_list += [ os.path.join(root_folder, d)
+      for d in os.listdir(root_folder)
+      if Path(root_folder+d).is_dir()
+    ]
 	return dir_list
 
 
@@ -69,10 +70,18 @@ def chooseSeries(paths):
 	pass
 
 
+# Quick shortcut to wrap strings in quotes
+def qquote(s):
+	return '"{}"'.format(s)
+
+
 try:
 	# Make the call!
 	p = chooseOne(DATA_DIRS)
-	print('\nplaying {}\n'.format(p))
-	subprocess.run([MEDIA_PLAYER, p])
+	print('\nplaying "{}"\n'.format(p))
+	# qquote() function is needed here because spaces
+	# must be escaped in file paths when passed as arguments
+	os.execv(MEDIA_PLAYER, [qquote(MEDIA_PLAYER), qquote(p)])
+
 except Exception as e:
 	print('\n{}\n'.format(e))
