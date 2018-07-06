@@ -16,7 +16,7 @@ MEDIA_PLAYER = 'C:\\Program Files\\Change\\This\\Path\\to\\yourMediaPlayer.exe'
 
 
 def isVideo(f):
-	if f.endswith(('.mp4', '.mkv', '.avi', '.flv')):
+	if f.endswith(('.mkv', '.mp4', '.avi', '.mov', '.flv')):
 		return True
 	else:
 		return False
@@ -70,9 +70,9 @@ def chooseSeries(paths):
 
 
 try:
-	# Make thecall!
+	# Make the call!
 	p = chooseOne(DATA_DIRS)
 	print('\nplaying {}\n'.format(p))
 	subprocess.run([MEDIA_PLAYER, p])
 except Exception as e:
-	print(e)
+	print('\n{}\n'.format(e))
