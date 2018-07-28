@@ -35,8 +35,7 @@ def convert_to_utf8(filename, output_path):
 
 		# Construct new file path
 		newfile = output_path + filename
-		# and at last convert it to utf-8
-	
+		# and finally convert it to utf-8
 		open(newfile, 'wb').write(data.encode('utf-8'))
 
 	except Exception as ex:
