@@ -12,32 +12,38 @@ fi
 
 subfolder="${PWD##*/}"
 if [ ! -d "$subfolder" ]; then
-	mkdir $subfolder
+	mkdir "$subfolder"
 fi
 
-for gainz in *.mkv ; do 
-	ffmpeg -i "$gainz" -map 0:"$mks" -q:a 3 -c:a libmp3lame "$subfolder/${gainz%.*}.mp3"
-done
 
-printf "\n\n\n\nDone converting audio...\n\n\n\n"
+# Derived from 
+# https://unix.stackexchange.com/questions/9496/looping-through-files-with-spaces-in-the-names
+find . -type f -name "*.mkv" -exec bash -c '
+	for file in "$0"; do 
+		basename="${file##*/}"
+		basename="${basename%.*}.mp3"
+		ffmpeg -i "$file" -map 0:"$1" -q:a 3 -c:a libmp3lame "$2/$basename"
+	done
+	' {} "$mks" "$subfolder" \;
+
+printf "\n\n----- Done converting audio -----\n\n"
 
 # Looks for jpg cover image
 if [ -f "cover.jpg" ]; then
 	cp "cover.jpg" "$subfolder/"
-	printf "\n\ncover.jpg copied successfully...\n\n"
+	printf "cover.jpg copied successfully...\n"
 else
-	printf "\n\nno cover.jpg found...\n\n"
+	printf "no cover.jpg found...\n"
 fi
 
 # Looks for png cover image
 if [ -f "cover.png" ]; then
 	cp "cover.png" "$subfolder/"
-	printf "\n\ncover.png copied successfully...\n\n"
+	printf "cover.png copied successfully...\n"
 else
-	printf "\n\nno cover.png found...\n\n"
+	printf "no cover.png found...\n"
 fi
 
-# move the new folder of audio files to where?
-mv "$subfolder" "insert-new-folder-destination-here"
+mv "$subfolder" "/m/audio_immersion/$subfolder"
 
-printf "\n\nDone moving files. Go check on your stuff!\n\n\n\n\n"
+printf "Done moving files. Go check on your stuff!\n\n"
