@@ -25,7 +25,7 @@ This repo is just a list of scripts I have written to automate various productiv
 
   <dt>audio_raffle.py</dt>
   <dd>Select and open a random song from your music library for playback.<br>
-    <b>Requirements:</b><ol>
+    <b>requirements:</b><ol>
       <li>The <code>DATA_DIRS</code> variable must have at least one valid path to select music from. 
       <li>The <code>MEDIA_PLAYER</code> variable must contain the path to your media player's executable for playing back your music files (VLC is recommended).</li>
     </ol>
@@ -69,7 +69,7 @@ This repo is just a list of scripts I have written to automate various productiv
   <dd>Search a directory for all text files (must be UTF-8) containing a certain word and compile sentences into a single text file with filename references.</dd>
 
   <dt>video_raffle.py</dt>
-  <dd>Select and open a random, video, movie, or series from your video library for playback.
+  <dd>Select and open a random, video, movie, or series from your video library for playback.<br>
     <b>requirements:</b><ol>
       <li>The <code>DATA_DIRS</code> variable must contain at least one valid path with video files.</li>
       <li>The <code>SERIES_DIR_IDENTIFIER</code> must contain a string (usually the name of a subfolder) that identifies if the chosen file is in a series directory.</li>
