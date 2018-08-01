@@ -14,9 +14,9 @@ fi
 
 
 for v in *.mp4; do
-	output="${v%.*}.mkv"
 	prefix="${v%.*}"
-	mkvmerge --title "$prefix" --track-order "0:1,0:0,1:0" --default-language "jpn" -o "muxed/$output" --track-name "0:日本語" --language "0:jpn" --default-track "0" "${v}" -D --track-name "0:日本語 - 副音声" --language "0:jpn" "fukuonsei/${v}"
+	output="$prefix.mkv"
+	mkvmerge --title "$prefix" --track-order "0:0,0:1,1:1" --default-language "jpn" -o "muxed/$output" --track-name "1:日本語" --language "1:jpn" "${v}" -D --track-name "1:日本語 - 副音声" --language "1:jpn" "fukuonsei/${v}"
 done
 
 printf "\n\n\n----- Multiplexing completed -----\n\n\n\n"
