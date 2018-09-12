@@ -21,21 +21,11 @@ find . -type f \( -name "*.mp4" -or -name "*.avi" \) -exec bash -c '
 
 printf "\n\n----- Done converting audio -----\n\n"
 
-# Looks for jpg cover image
-if [ -f "cover.jpg" ]; then
-	cp "cover.jpg" "$subfolder/"
-	printf "cover.jpg copied successfully...\n"
-else
-	printf "no cover.jpg found...\n"
-fi
-
-# Looks for png cover image
-if [ -f "cover.png" ]; then
-	cp "cover.png" "$subfolder/"
-	printf "cover.png copied successfully...\n"
-else
-	printf "no cover.png found...\n"
-fi
+# Copy cover images
+for c in cover*.{jpg,png}; do
+	cp "$c" "$subfolder/"
+	printf "$c copied successfully...\n"
+done
 
 mv "$subfolder" "/m/audio_immersion/$subfolder"
 
