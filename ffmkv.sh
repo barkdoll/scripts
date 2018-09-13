@@ -10,6 +10,7 @@ else
 	mks="1"
 fi
 
+# Variable expansion to make subfolder name same as parent
 subfolder="${PWD##*/}"
 if [ ! -d "$subfolder" ]; then
 	mkdir "$subfolder"

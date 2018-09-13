@@ -1,7 +1,4 @@
-# NOTE: you can find the track ID of the audio stream 
-# you want to pass in your $1 argument by using:
-# mkvmerge -i <filename>
-
+# Variable expansion to make subfolder name same as parent
 subfolder="${PWD##*/}"
 if [ ! -d "$subfolder" ]; then
 	mkdir "$subfolder"
@@ -17,7 +14,6 @@ find . -type f \( -name "*.mp4" -or -name "*.avi" \) -exec bash -c '
 		ffmpeg -i "$file" -q:a 3 -c:a libmp3lame "$1/$basename"
 	done
 	' {} "$subfolder" \;
-
 
 printf "\n\n----- Done converting audio -----\n\n"
 
