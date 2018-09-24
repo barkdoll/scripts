@@ -35,7 +35,7 @@ def isNumber(s):
 
 def logSkipped(file_list, query_name):
 	with open(OUTPUT_DIR + 'SKIPPED_'
-    + query_name.replace('txt', 'log'), 'wb') as skip_log:
+           + query_name.replace('txt', 'log'), 'wb') as skip_log:
 		skip_log.write('Files skipped in source directory {}\n'
                  .format(DATA_DIR).encode())
 		for idx, fname in enumerate(file_list):
@@ -104,7 +104,8 @@ else:
 rex = '((?<=。)[^。]*' + query + '[^。]*。)'
 
 print('Here\'s Rexy-boy (regex pattern):', rex)
-print('Search target:', DATA_DIR)
+# The range [:-1] removes tailing backslash
+print('Search target:', DATA_DIR[:-1])
 print('Mining for golden Anki nuggets...\n')
 
 file_counter, file_match, match_count, unfiltered = 0, 0, 0, 0
@@ -131,15 +132,19 @@ for file in tqdm(os.listdir(DATA_DIR)):
 				unfiltered += len(matches)
 				# Removes matches larger than the specified character limit
 				trimmed = [sentence for sentence in matches
-                  	if len(sentence) <= int(upper_limit)]
+                                    if len(sentence) <= int(upper_limit)]
 
 				match_count += len(trimmed)
 
 				# Additional processing to enumerate
 				# if multiple matches are found
 				if (len(trimmed) > 1):
-					trimmed = ['{}. {}'.format(str(i+1).zfill(2), x)
-                    	for i, x in enumerate(trimmed)]
+					z_pad = len(str(len(trimmed)))
+					z_pad = 2 if z_pad < 2 else z_pad
+
+					trimmed = ['{}. {}'.format(str(i+1).zfill(z_pad), x)
+                                            for i, x in enumerate(trimmed)]
+
 				# This is only needed because all matches could be
 				# thrown out if they are above the character limit
 				if not trimmed:
@@ -151,7 +156,7 @@ for file in tqdm(os.listdir(DATA_DIR)):
 					# name format: TITLE // AUTHOR（著）
 					file_name = re.sub(
 						r"(?P<author>.+) –– (?P<title>.+)",
-						r'\g<title>　//　\g<author>（著）',
+						r'\g<title> // \g<author>（著）',
 						file_name
 					)
 					file_name = re.sub(
@@ -187,12 +192,12 @@ print('Matches kept:\t\t', colored(match_count, 'cyan'))
 completed_time = time.time() - start_time
 if completed_time < 60:
 	print(colored('COMPLETED', 'green') + ' extraction in '
-        + colored('{0:.1f} seconds'.format(completed_time), 'green'))
+            + colored('{0:.1f} seconds'.format(completed_time), 'green'))
 else:
 	m = int(completed_time / 60)
 	s = int(completed_time % 60)
 	print(colored('COMPLETED', 'green') + ' extraction in '
-        + colored('{}m {}s'.format(m, str(s).zfill(2)), 'green'))
+            + colored('{}m {}s'.format(m, str(s).zfill(2)), 'green'))
 
 print('')
 # opens output file in your favorite text editor
