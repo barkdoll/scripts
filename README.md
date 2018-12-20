@@ -38,7 +38,7 @@ This repo is just a list of scripts I have written to automate various productiv
   <dt>bt_watch.sh / bt_watch_win10.sh</dt>
   <dd>Watch local IP for changes, and kill Bittorrent client on change.<br>
     <b>requirements:</b><ol>
-        <li>(win10 version) The <code>BT_CLIENT</code> variable must be set to your torrent client's binary path (`*.exe`) containing the text files to be re-encoded.</li>
+        <li>(win10 version) The <code>BT_CLIENT</code> variable must be set to your torrent client's binary path (<b>*.exe</b>) containing the text files to be re-encoded.</li>
       </ol>
   </dd> 
 
