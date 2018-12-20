@@ -18,10 +18,10 @@ This repo is just a list of scripts I have written to automate various productiv
 ## Scripts Functionality Index
 
 <dl>
-  <!-- COMING SOON
+
   <dt>aac_192k_vbr.sh</dt>
   <dd>Convert current directory's <i><b>FLAC</b></i> files to <i><b>m4a</b> (192kbps, aac, lossy)</i> for playback and portability.  
-  </dd>  -->
+  </dd>
 
   <dt>audio_raffle.py</dt>
   <dd>Select and open a random song from your music library for playback.<br>
@@ -34,12 +34,17 @@ This repo is just a list of scripts I have written to automate various productiv
     </ul>
   </dd>
 
-  <!-- COMING SOON
+
   <dt>bt_watch.sh / bt_watch_win10.sh</dt>
-  <dd></dd>  -->
+  <dd>Watch local IP for changes, and kill Bittorrent client on change. </dd> 
 
   <dt>dupFinder.py</dt>
-  <dd>Find and ouput file duplicates. Checks against file's content regardless of if file name differs.</dd>
+  <dd>Find and ouput file duplicates. Checks against file's content regardless of if file name differs.<br>
+    <b>requirements:</b><ol>
+      <li>(win10 version) The `BT_CLIENT` variable must be set to your torrent client's binary path (`*.exe`) containing the text files to be re-encoded. 
+      <li>The `OUPUT_DIR` variable must be set as the output location for the newly encoded UTF-8 files.</li>
+    </ol>
+  </dd>
 
   <dt>encode.py</dt>
   <dd>Re-encode a directory's text files to UTF-8.<br>
