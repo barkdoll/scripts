@@ -36,15 +36,14 @@ This repo is just a list of scripts I have written to automate various productiv
 
 
   <dt>bt_watch.sh / bt_watch_win10.sh</dt>
-  <dd>Watch local IP for changes, and kill Bittorrent client on change. </dd> 
+  <dd>Watch local IP for changes, and kill Bittorrent client on change.<br>
+    <b>requirements:</b><ol>
+        <li>(win10 version) The `BT_CLIENT` variable must be set to your torrent client's binary path (`*.exe`) containing the text files to be re-encoded.</li>
+      </ol>
+  </dd> 
 
   <dt>dupFinder.py</dt>
-  <dd>Find and ouput file duplicates. Checks against file's content regardless of if file name differs.<br>
-    <b>requirements:</b><ol>
-      <li>(win10 version) The `BT_CLIENT` variable must be set to your torrent client's binary path (`*.exe`) containing the text files to be re-encoded. 
-      <li>The `OUPUT_DIR` variable must be set as the output location for the newly encoded UTF-8 files.</li>
-    </ol>
-  </dd>
+  <dd>Find and ouput file duplicates. Checks against file's content regardless of if file name differs.</dd>
 
   <dt>encode.py</dt>
   <dd>Re-encode a directory's text files to UTF-8.<br>
