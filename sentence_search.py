@@ -199,8 +199,15 @@ else:
 	print(colored('COMPLETED', 'green') + ' extraction in '
             + colored('{}m {}s'.format(m, str(s).zfill(2)), 'green'))
 
+
+if match_count is 0:
+	os.remove(output_file)
 print('')
+	print('Output file was deleted since no matches were kept for your search.')
+else:
 # opens output file in your favorite text editor
 # change the path to the editor path on your machine
 if i_want_to_open_the_output_file_in_my_text_editor:
 	subprocess.call([EDITOR_PATH, output_file])
+
+print('')
