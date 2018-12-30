@@ -201,8 +201,8 @@ else:
 
 
 if match_count is 0:
-	os.remove(output_file)
-print('')
+	os.remove(output_file) 
+	print('')
 	print('Output file was deleted since no matches were kept for your search.')
 else:
 # opens output file in your favorite text editor
