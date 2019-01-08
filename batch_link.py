@@ -12,7 +12,7 @@ def slugify(value):
 	https://stackoverflow.com/a/295466/10039085
 	
 	Originally from the Django framework.
-	
+
 	Normalizes string, converts to lowercase, removes non-alpha characters,
 	and converts spaces to hyphens.
 	"""
@@ -54,26 +54,25 @@ def main(url, target):
 	sauce = requests.get(url).content
 	soup = BeautifulSoup(sauce, 'html.parser')
 
-	batch_list = []
+	batch_list = [a for a in soup('a') if a['href'].endswith(target)]
 
-	for a in soup('a'):
-		if a['href'].endswith(target):
-			link = a['href']
-			
-			if not a['href'].startswith(url):
-				link = url + link			
-			batch_list.append(link)
+	for yes in batch_list:			
+		if yes['href'].startswith(url):
+			link = yes['href']
+		else:
+			if url.endswith('/'):
+				link = url+yes['href']
+			else:
+				link = url+'/'+yes['href']
 	
-	for thing in batch_list:
-		# print(thing)
-		download_file(thing)
+		download_file(link)
 	
-	print('done!')
+	print('done')
 	return
 
 
 if len(sys.argv) is 3:
-	main(sys.argv[1], sys.argv[2]);
+	main(sys.argv[1], sys.argv[2])
 
 else:
 	print('pass exactly two arguments')
