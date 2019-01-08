@@ -24,6 +24,7 @@ def download_file(url):
 	path_segments = url.split('/')[-3:-1]
 	fname = slugify(url.split('/')[-1])
 
+	# https://stackoverflow.com/a/4979569/10039085
 	dir_path = os.path.join(
 		os.path.expanduser('~'), 
 		'Desktop', 'test', 'seisho', *path_segments
