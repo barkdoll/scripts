@@ -186,7 +186,7 @@ print('Files skipped:\t\t', skip_print_count)
 if len(skipped) > 0:
 	logSkipped(skipped, output_basename)
 
-print('Files scanned:\t\t', colored(file_counter - len(skipped), 'cyan'))
+print('Files scanned:\t\t', colored(file_counter, 'cyan'))
 print('Files matched:\t\t', colored(file_match, 'cyan'))
 print('Matches found:\t\t', colored(unfiltered, 'cyan'))
 print('Matches limited:\t', colored(unfiltered - match_count, 'cyan'))
