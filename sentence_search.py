@@ -22,7 +22,7 @@ EDITOR_PATH = '<insert-path-to-your-text-editor-or-set-below-variable-to-False>'
 # Set to False to disable auto-opening output file
 i_want_to_open_the_output_file_in_my_text_editor = True
 # Choose which directory to send output files
-OUTPUT_DIR = os.path.expanduser('~') + '\\Desktop\\'
+OUTPUT_DIR = str(Path.home() / 'Desktop')
 
 
 def isNumber(s):
@@ -112,16 +112,20 @@ file_counter, file_match, match_count, unfiltered = 0, 0, 0, 0
 skipped = []
 # The search and data processing; a.k.a. the heavy lifting
 for file in tqdm(os.listdir(DATA_DIR)):
-	if Path(DATA_DIR + file).is_file():
-		file_counter += 1
 
-	if (DATA_DIR + file).lower().endswith('.txt'):
-		with open(DATA_DIR + file, 'rb') as currentFile:
+    fp = Path(DATA_DIR + file)
+
+    text_formats = ('txt', 'srt', 'ass')
+
+    if (str(fp).endswith(f'.{any(text_formats)}')):
+        with open(fp, 'rb') as currentFile:
 			try:
 				text = currentFile.read().decode('utf-8')
 			except Exception as e:
 				skipped.append(file)
 				continue
+
+            file_counter += 1
 
 			if (re.search(rex, text)):
 				file_match += 1
