@@ -9,6 +9,14 @@ from termcolor import colored
 from tqdm import tqdm
 from chardet import detect
 
+
+def wr(x, wrap, end_wrap=None):
+    return (
+        f'{wrap}{x}{wrap}'
+        if not end_wrap
+        else f'{wrap}{x}{end_wrap}'
+    )
+
 # Gets the beginning time for script execution
 # to later calculate total operation time
 start_time = time.time()
@@ -74,11 +82,14 @@ no_search_term = any((
 ))
 
 if no_search_term:
-    print('\nI need a search term pal.\n')
+    print(wr('I need a search term pal.', '\n'))
     quit()
 
 if sum(1 for i in query if isNumber(i)) > 1:
-    print('\nOnly put one character limit number in your query please :)\n')
+    print(wr(
+        'Only put one character limit number in your query please :)',
+        '\n')
+    )
     quit()
 
 modes = ('--subs', '--novel')
@@ -108,9 +119,11 @@ print('\n' + f'Sentence character limit: {upper_limit}')
 output_basename = f'''{'-'.join(targets)}-{upper_limit}.txt'''
 output_file = Path(OUTPUT_DIR) / output_basename
 
-headline = (
-    'Sentences mined for ' + ', '.join(targets) +
-    '\n================================\n\n'
+headline = ('\n'.join((
+        'Sentences mined for ' + ', '.join(targets),
+        '================================'
+        '\n'
+    ))
 ).encode('utf-8')
 
 
@@ -129,16 +142,16 @@ rex = {
     'subs': f'(.*{rex_target}.*)'
 }[mode]
 
-print(f'Here\'s Rexy (regex): {rex}')
+print(f'''Here's Rexy (regex): {rex}''')
 # The range [:-1] removes tailing backslash
 print(f'Search target: {str(DATA_DIR)}')
-print('Mining for golden Anki nuggets...\n')
+print('Mining for golden Anki nuggets...', end='\n\n')
 
 file_counter, file_match, match_count, unfiltered = 0, 0, 0, 0
 skipped = []
 # The search and data processing; a.k.a. the heavy lifting
-text_formats = tuple(
-        f'.{f}' for f in ('txt', 'srt', 'ass'))
+
+text_formats = ('.txt', '.srt', '.ass')
 
 for file in tqdm(DATA_DIR.glob('**/*')):
 
@@ -161,6 +174,8 @@ for file in tqdm(DATA_DIR.glob('**/*')):
         file_counter += 1
 
         if (re.search(rex, text)):
+            print(re.findall(rex, text), end='\n\n\n')
+            continue
             file_match += 1
             # Because the regex returns a list of tuples
             # when multiple argument search words are given,
