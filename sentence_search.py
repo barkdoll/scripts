@@ -67,47 +67,62 @@ query = list(set(sys.argv[1:]))
 if not query or (len(query) == 1 and isNumber(query[0])) or \
     (len(query) > 1 and all(isNumber(q) for q in query)):
     print('\nI need a search term pal.\n')
-    sys.exit(1)
+    quit()
 
 if sum(1 for i in query if isNumber(i)) > 1:
     print('\nOnly put one character limit number in your query please :)\n')
-    sys.exit(1)
+    quit()
 
+modes = ('--subs', '--novel')
+if any(a in modes for a in query):
+    if all(a in modes for a in query):
+        mode = 'novel'
+    else:
+        mode = (next(
+            m for m in modes if m in query)
+            .replace('--', ''))
+else:
+    mode = 'novel'
 
 # Initial setup before search
 if (len(query) > 1) and any(isNumber(q) for q in query):
     upper_limit = next(n for n in query if isNumber(n))
-    query = [q for q in query if not isNumber(q)]
 else:
     upper_limit = '40'
 
-print('\nSentence character limit:', upper_limit)
+targets = [
+    q for q in query 
+    if q not in (f'--{mode}', upper_limit)
+]
 
-output_basename = '{}-{}.txt'.format('-'.join(query), upper_limit)
-output_file = OUTPUT_DIR + output_basename
+print('\n' +
+    f'Sentence character limit: {upper_limit}')
+
+output_basename = f'''{'-'.join(targets)}-{upper_limit}.txt'''
+output_file = Path(OUTPUT_DIR) / output_basename
 
 headline = (
-    'Sentences mined for ' + ', '.join(query) +
+    'Sentences mined for ' + ', '.join(targets) +
     '\n================================\n\n'
 ).encode('utf-8')
 
 
-if Path(output_file).is_file():
-    print('Overwriting {}'.format(output_basename))
-else:
-    print('Creating {}'.format(output_basename))
+(print(f'Overwriting {output_basename}')
+    if Path(output_file).is_file()
+    else print(f'Creating {output_basename}'))
 
 open(output_file, 'wb').write(headline)
 
+rex_target = (
+    '({})'.format('|'.join(targets)) if len(targets) > 1 
+    else f'({targets[0]})')
 
-if len(query) > 1:
-    query = '({})'.format('|'.join(query))
-else:
-    query = '({})'.format(query[0])
+rex = {
+    'novel': f'((?<=。)[^。]*{rex_target}[^。]*。)',
+    'subs': f'(.*{rex_target}.*)'
+}[mode]
 
-rex = '((?<=。)[^。]*' + query + '[^。]*。)'
-
-print('Here\'s Rexy (regex):', rex)
+print(f'Here\'s Rexy (regex): {rex}')
 # The range [:-1] removes tailing backslash
 print(f'Search target: {str(DATA_DIR)}')
 print('Mining for golden Anki nuggets...\n')
@@ -122,19 +137,19 @@ for file in tqdm(DATA_DIR.glob('**/*')):
     
     if file.is_dir() or not str(file).endswith(text_formats):
         continue
-        
-    with open(file, 'rb') as currentFile:
+
+    ext = next(f for f in text_formats)
+
+    with open(file, 'rb') as current_file:
         
         try:
-            text = currentFile.read().decode('utf-8')
+            text = current_file.read().decode('utf-8')
         except Exception as e:
             skipped.append(file)
             continue
 
         file_counter += 1
 
-        print(re.search(rex, text))
-        continue
 
         if (re.search(rex, text)):
             file_match += 1
@@ -144,26 +159,29 @@ for file in tqdm(DATA_DIR.glob('**/*')):
             matches = [x[0].strip('\r\n 　') for x in re.findall(rex, text)]
             unfiltered += len(matches)
             # Removes matches larger than the specified character limit
-            trimmed = [sentence for sentence in matches
-                                if len(sentence) <= int(upper_limit)]
+            limited = [
+                sentence for sentence in matches
+                if len(sentence) <= int(upper_limit)]
 
-            match_count += len(trimmed)
-
-            # Additional processing to enumerate
-            # if multiple matches are found
-            if (len(trimmed) > 1):
-                z_pad = len(str(len(trimmed)))
-                z_pad = 2 if z_pad < 2 else z_pad
-
-                trimmed = ['{}. {}'.format(str(i+1).zfill(z_pad), x)
-                                        for i, x in enumerate(trimmed)]
+            match_count += len(limited)
 
             # This is only needed because all matches could be
             # thrown out if they are above the character limit
-            if not trimmed:
-                pass
+            if not limited:
+                continue
+
+            # Additional processing to enumerate
+            # if multiple matches are found
+            if (len(limited) > 1):
+                z_pad = len(str(len(limited)))
+                z_pad = 2 if z_pad < 2 else z_pad
+
+                trimmed = [
+                    f'{str(i+1).zfill(z_pad)}. {x}'
+                    for i, x in enumerate(limited)]
+
             else:
-                file_name = file.split('.txt')[0]
+                file_name = str(file).replace(ext, '')
 
                 # Special file name format processing
                 # name format: TITLE // AUTHOR（著）
@@ -178,10 +196,17 @@ for file in tqdm(DATA_DIR.glob('**/*')):
                     file_name
                 )
 
-                blob = [file_name, '----------------'] + \
-                    trimmed + ['\n\n']
+                blob = [
+                    file_name.replace(str(DATA_DIR), ''),
+                    '----------------',
+                    (i for i in trimmed),
+                    '\n\n'
+                ]
 
-                content = '\n'.join(blob).encode('utf-8')
+                # [item for sublist in l for item in sublist]
+                pancake = [i for i in blob]
+
+                content = '\n'.join(pancake).encode('utf-8')
                 open(output_file, 'ab').write(content)
 
 print('')
