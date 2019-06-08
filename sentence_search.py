@@ -35,14 +35,6 @@ EDITOR_PATH = False
 OUTPUT_DIR = str(Path.home() / 'Desktop')
 
 
-def isNumber(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
-
-
 def log_skipped(file_list, query_name):
 
     log_file = f'''
@@ -79,15 +71,15 @@ query = list(set(sys.argv[1:]))
 # Error handling
 no_search_term = any((
     not query,
-    (len(query) == 1 and isNumber(query[0])),
-    (len(query) > 1 and all(isNumber(q) for q in query))
+    (len(query) == 1 and query[0].isdigit()),
+    (len(query) > 1 and all(q.isdigit() for q in query))
 ))
 
 if no_search_term:
     print(wr('I need a search term pal.', '\n'))
     quit()
 
-if sum(1 for i in query if isNumber(i)) > 1:
+if sum(1 for i in query if i.isdigit()) > 1:
     print(wr(
         'Only put one character limit number in your query please :)',
         '\n')
@@ -106,8 +98,8 @@ else:
     mode = 'novel'
 
 # Initial setup before search
-if (len(query) > 1) and any(isNumber(q) for q in query):
-    upper_limit = next(n for n in query if isNumber(n))
+if (len(query) > 1) and any(q.isdigit() for q in query):
+    upper_limit = next(n for n in query if n.isdigit())
 else:
     upper_limit = '40'
 
@@ -124,7 +116,7 @@ output_file = Path(OUTPUT_DIR) / output_basename
 headline = u8enc('\n'.join((
     'Sentences mined for ' + ', '.join(targets),
     '================================'
-    '\n'
+    '\n\n\n'
 )))
 
 
@@ -175,8 +167,6 @@ for file in tqdm(DATA_DIR.glob('**/*')):
         file_counter += 1
 
         if (re.search(rex, text)):
-            print(re.findall(rex, text), end='\n\n\n')
-            continue
             file_match += 1
             # Because the regex returns a list of tuples
             # when multiple argument search words are given,
