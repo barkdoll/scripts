@@ -59,7 +59,7 @@ def log_skipped(file_list, query_name):
 
 def create_headline(search_terms):
     return u8enc('\n'.join((
-        'Sentences mined for ' + ', '.join(targets),
+        'Sentences mined for ' + ', '.join(search_terms),
         '================================'
         '\n\n\n'
     )))
