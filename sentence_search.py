@@ -36,7 +36,9 @@ def isNumber(s):
 
 def log_skipped(file_list, query_name):
 
-    log_file = f'{OUTPUT_DIR}/SKIPPED_{query_name.replace('txt', 'log')}'
+    log_file = f'''
+        {OUTPUT_DIR}/SKIPPED_{query_name.replace('txt', 'log')}
+        '''.strip()
 
     with open(log_file, 'wb') as skip_log:
         skip_log.write((
@@ -50,12 +52,12 @@ def log_skipped(file_list, query_name):
                 f'{n}. {fname}' + '\n'
             ).encode())
 
-        skip_message = '\n'.join(
+        skip_message = '\n'.join((
             'Files were skipped due to their encoding.',
             'Files must be encoded in utf-8 in order to be used.',
             f'Open {basename(skip_log)} in a text editor',
             'to see which files were skipped.'
-        )
+        ))
         print(colored(skip_message, 'yellow'))
 
 
@@ -253,10 +255,10 @@ else:
 if match_count is 0:
     delete(output_file)
     print('')
-    print(' '.join(
-            'Output file was deleted since no matches' +
+    print(' '.join((
+            'Output file was deleted since no matches',
             'were kept for your search.'
-        ),
+        )),
         end='\n\n')
 
 # opens output file in your favorite text editor
