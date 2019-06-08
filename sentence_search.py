@@ -9,21 +9,13 @@ from termcolor import colored
 from tqdm import tqdm
 from chardet import detect
 
-
-def wr(x, wrap, end_wrap=None):
-    return (
-        f'{wrap}{x}{wrap}'
-        if not end_wrap
-        else f'{wrap}{x}{end_wrap}'
+from lib.print_utils import wr
+from lib.encode import (
+    u8dec,
+    u8enc
     )
 
 
-def u8enc(s):
-    return s.encode('utf-8')
-
-
-def u8dec(s):
-    return s.decode('utf-8')
 
 
 # Gets the beginning time for script execution
