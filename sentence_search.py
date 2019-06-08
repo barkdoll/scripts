@@ -1,4 +1,5 @@
-import os
+from os import remove as delete
+from os.path import basename
 import re
 import subprocess
 import sys
@@ -16,16 +17,14 @@ start_time = time.time()
 # Set this to the directory where all your text files are located
 # There must be a slash separator at the end to properly
 # parse the file paths when the script is mining sentences.
-DATA_DIR = Path(
-    '/run/user/1000/gvfs/smb-share:server=desktop-dooceg3,share=tv_shows/terrace_house_boys_x_girls_next_door/'
-)
+DATA_DIR = Path('<path-to-your-text-files>')
 # Choose whether or not to you want to open the output
 # in yout text editor automatically after finishing the search
-EDITOR_PATH = '<insert-path-to-your-text-editor-or-set-below-variable-to-False>'
 # Set to False to disable auto-opening output file
-i_want_to_open_the_output_file_in_my_text_editor = False
+EDITOR_PATH = False
 # Choose which directory to send output files
 OUTPUT_DIR = str(Path.home() / 'Desktop')
+
 
 def isNumber(s):
     try:
@@ -36,25 +35,27 @@ def isNumber(s):
 
 
 def log_skipped(file_list, query_name):
-    with open(
-        f'{OUTPUT_DIR}/SKIPPED_{query_name}'
-        .replace('txt', 'log'), 'wb') as skip_log:
+
+    log_file = f'{OUTPUT_DIR}/SKIPPED_{query_name.replace('txt', 'log')}'
+
+    with open(log_file, 'wb') as skip_log:
         skip_log.write((
-            'Files skipped in source directory ' + 
+            'Files skipped in source directory ' +
             f'{str(DATA_DIR)}''').encode())
         for idx, fname in enumerate(file_list):
             # Uncomment below to print all skipped files to console
             # print(' ➥', str(idx+1).zfill(len(str(len(file_list)))), fname)
+            n = str(idx+1).zfill(len(str(len(file_list))))
             skip_log.write((
-                '{0}. {1}\n'.format(str(idx+1).zfill(len(str(len(file_list)))), fname)
+                f'{n}. {fname}' + '\n'
             ).encode())
 
-        skip_message = (
-            'Files were skipped due to their encoding.\n'
-            + 'Files must be encoded in utf-8 in order to be used.\n'
-            + 'Open {} in a text editor\n'
-            + 'to see which files were skipped.'
-        ).format(skip_log.name.split('\\')[-1])
+        skip_message = '\n'.join(
+            'Files were skipped due to their encoding.',
+            'Files must be encoded in utf-8 in order to be used.',
+            f'Open {basename(skip_log)} in a text editor',
+            'to see which files were skipped.'
+        )
         print(colored(skip_message, 'yellow'))
 
 
@@ -64,8 +65,13 @@ def log_skipped(file_list, query_name):
 query = list(set(sys.argv[1:]))
 
 # Error handling
-if not query or (len(query) == 1 and isNumber(query[0])) or \
-    (len(query) > 1 and all(isNumber(q) for q in query)):
+no_search_term = any((
+    not query,
+    (len(query) == 1 and isNumber(query[0])),
+    (len(query) > 1 and all(isNumber(q) for q in query))
+))
+
+if no_search_term:
     print('\nI need a search term pal.\n')
     quit()
 
@@ -91,12 +97,11 @@ else:
     upper_limit = '40'
 
 targets = [
-    q for q in query 
+    q for q in query
     if q not in (f'--{mode}', upper_limit)
 ]
 
-print('\n' +
-    f'Sentence character limit: {upper_limit}')
+print('\n' + f'Sentence character limit: {upper_limit}')
 
 output_basename = f'''{'-'.join(targets)}-{upper_limit}.txt'''
 output_file = Path(OUTPUT_DIR) / output_basename
@@ -114,7 +119,7 @@ headline = (
 open(output_file, 'wb').write(headline)
 
 rex_target = (
-    '({})'.format('|'.join(targets)) if len(targets) > 1 
+    '({})'.format('|'.join(targets)) if len(targets) > 1
     else f'({targets[0]})')
 
 rex = {
@@ -134,14 +139,16 @@ text_formats = tuple(
         f'.{f}' for f in ('txt', 'srt', 'ass'))
 
 for file in tqdm(DATA_DIR.glob('**/*')):
-    
+
     if file.is_dir() or not str(file).endswith(text_formats):
         continue
 
-    ext = next(f for f in text_formats)
+    ext = next(
+        f for f in text_formats
+        if str(file).endswith(f))
 
     with open(file, 'rb') as current_file:
-        
+
         try:
             text = current_file.read().decode('utf-8')
         except Exception as e:
@@ -149,7 +156,6 @@ for file in tqdm(DATA_DIR.glob('**/*')):
             continue
 
         file_counter += 1
-
 
         if (re.search(rex, text)):
             file_match += 1
@@ -179,35 +185,35 @@ for file in tqdm(DATA_DIR.glob('**/*')):
                 trimmed = [
                     f'{str(i+1).zfill(z_pad)}. {x}'
                     for i, x in enumerate(limited)]
-
             else:
-                file_name = str(file).replace(ext, '')
+                trimmed = limited
 
-                # Special file name format processing
-                # name format: TITLE // AUTHOR（著）
-                file_name = re.sub(
-                    r"(?P<author>.+) –– (?P<title>.+)",
-                    r'\g<title> // \g<author>（著）',
-                    file_name
-                )
-                file_name = re.sub(
-                    r"([^ ])(\(校正)",
-                    r'\g<1> \g<2>',
-                    file_name
-                )
+            file_name = str(file).replace(ext, '')
 
-                blob = [
-                    file_name.replace(str(DATA_DIR), ''),
-                    '----------------',
-                    (i for i in trimmed),
-                    '\n\n'
-                ]
+            # Special file name format processing
+            # name format: TITLE // AUTHOR（著）
+            file_name = re.sub(
+                r"(?P<author>.+) –– (?P<title>.+)",
+                r'\g<title> // \g<author>（著）',
+                file_name
+            )
+            file_name = re.sub(
+                r"([^ ])(\(校正)",
+                r'\g<1> \g<2>',
+                file_name
+            )
 
-                # [item for sublist in l for item in sublist]
-                pancake = [i for i in blob]
+            blob = ([
+                file_name.replace(str(DATA_DIR), ''),
+                '----------------'] +
+                trimmed +
+                ['\n\n'])
 
-                content = '\n'.join(pancake).encode('utf-8')
-                open(output_file, 'ab').write(content)
+            # [item for sublist in l for item in sublist]
+            pancake = [i for i in blob]
+
+            content = '\n'.join(pancake).encode('utf-8')
+            open(output_file, 'ab').write(content)
 
 print('')
 print('Files found:\t\t', colored(file_counter, 'cyan'))
@@ -229,22 +235,31 @@ print('Matches kept:\t\t', colored(match_count, 'cyan'))
 # Print completion statement with operation time
 completed_time = time.time() - start_time
 if completed_time < 60:
-    print(colored('COMPLETED', 'green') + ' extraction in '
-            + colored('{0:.1f} seconds'.format(completed_time), 'green'))
+    print(
+        colored('COMPLETED', 'green') + ' extraction in ' +
+        colored(f'{completed_time:.1f} seconds', 'green'),
+        end='\n\n'
+    )
 else:
     m = int(completed_time / 60)
     s = int(completed_time % 60)
-    print(colored('COMPLETED', 'green') + ' extraction in '
-            + colored('{}m {}s'.format(m, str(s).zfill(2)), 'green'))
+    print(
+        colored('COMPLETED', 'green') + ' extraction in ' +
+        colored(f'{m}m {str(s).zfill(2)}s', 'green'),
+        end='\n\n'
+    )
 
 
 if match_count is 0:
-    os.remove(output_file) 
+    delete(output_file)
     print('')
-    print('Output file was deleted since no matches were kept for your search.')
+    print(' '.join(
+            'Output file was deleted since no matches' +
+            'were kept for your search.'
+        ),
+        end='\n\n')
+
 # opens output file in your favorite text editor
 # change the path to the editor path on your machine
-if i_want_to_open_the_output_file_in_my_text_editor:
+if EDITOR_PATH:
     subprocess.call([EDITOR_PATH, output_file])
-
-print('')
