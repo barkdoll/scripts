@@ -1,13 +1,13 @@
-from os import remove as delete
-from os.path import basename
 import re
 import subprocess
-import sys
-import time
+from sys import argv
+from os import remove as delete
+from os.path import basename
+from time import time
+
 from pathlib import Path
 from termcolor import colored
 from tqdm import tqdm
-from chardet import detect
 
 from lib.print_utils import wr
 from lib.encode import (
@@ -95,12 +95,12 @@ def format_aozora_fnames(fname):
 if __name__ == '__main__':
     # Gets the beginning time for script execution
     # to later calculate total operation time
-    start_time = time.time()
+    start_time = time()
 
     # set() removes duplicates;
     # list() turns it back into list (duh)
     # for more flexible/iterable functionality
-    query = list(set(sys.argv[1:]))
+    query = list(set(argv[1:]))
 
     # Error handling
     no_search_term = any((
@@ -263,7 +263,7 @@ if __name__ == '__main__':
     print('Matches kept:\t\t', colored(match_count, 'cyan'))
 
     # Print completion statement with operation time
-    completed_time = time.time() - start_time
+    completed_time = time() - start_time
     if completed_time < 60:
         print(
             colored('COMPLETED', 'green') + ' extraction in ' +
