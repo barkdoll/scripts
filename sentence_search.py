@@ -17,6 +17,15 @@ def wr(x, wrap, end_wrap=None):
         else f'{wrap}{x}{end_wrap}'
     )
 
+
+def u8enc(s):
+    return s.encode('utf-8')
+
+
+def u8dec(s):
+    return s.decode('utf-8')
+
+
 # Gets the beginning time for script execution
 # to later calculate total operation time
 start_time = time.time()
@@ -49,16 +58,17 @@ def log_skipped(file_list, query_name):
         '''.strip()
 
     with open(log_file, 'wb') as skip_log:
-        skip_log.write((
+
+        skip_log.write(u8enc(
             'Files skipped in source directory ' +
-            f'{str(DATA_DIR)}''').encode())
+            str(DATA_DIR)))
+
         for idx, fname in enumerate(file_list):
             # Uncomment below to print all skipped files to console
             # print(' ➥', str(idx+1).zfill(len(str(len(file_list)))), fname)
             n = str(idx+1).zfill(len(str(len(file_list))))
-            skip_log.write((
-                f'{n}. {fname}' + '\n'
-            ).encode())
+            skip_log.write(
+                u8enc(f'{n}. {fname}' + '\n'))
 
         skip_message = '\n'.join((
             'Files were skipped due to their encoding.',
@@ -119,12 +129,11 @@ print('\n' + f'Sentence character limit: {upper_limit}')
 output_basename = f'''{'-'.join(targets)}-{upper_limit}.txt'''
 output_file = Path(OUTPUT_DIR) / output_basename
 
-headline = ('\n'.join((
-        'Sentences mined for ' + ', '.join(targets),
-        '================================'
-        '\n'
-    ))
-).encode('utf-8')
+headline = u8enc('\n'.join((
+    'Sentences mined for ' + ', '.join(targets),
+    '================================'
+    '\n'
+)))
 
 
 (print(f'Overwriting {output_basename}')
@@ -166,7 +175,7 @@ for file in tqdm(DATA_DIR.glob('**/*')):
     with open(file, 'rb') as current_file:
 
         try:
-            text = current_file.read().decode('utf-8')
+            text = u8dec(current_file.read())
         except Exception as e:
             skipped.append(file)
             continue
@@ -230,7 +239,7 @@ for file in tqdm(DATA_DIR.glob('**/*')):
             # [item for sublist in l for item in sublist]
             pancake = [i for i in blob]
 
-            content = '\n'.join(pancake).encode('utf-8')
+            content = u8enc('\n'.join(pancake))
             open(output_file, 'ab').write(content)
 
 print('')
