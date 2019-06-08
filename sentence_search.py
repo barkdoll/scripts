@@ -145,9 +145,10 @@ for file in tqdm(DATA_DIR.glob('**/*')):
     if file.is_dir() or not str(file).endswith(text_formats):
         continue
 
-    ext = next(
-        f for f in text_formats
-        if str(file).endswith(f))
+    # Useful for something?
+    # ext = next(
+    #     f for f in text_formats
+    #     if str(file).endswith(f))
 
     with open(file, 'rb') as current_file:
 
@@ -190,7 +191,7 @@ for file in tqdm(DATA_DIR.glob('**/*')):
             else:
                 trimmed = limited
 
-            file_name = str(file).replace(ext, '')
+            file_name = str(file)
 
             # Special file name format processing
             # name format: TITLE // AUTHOR（著）
