@@ -2,6 +2,7 @@ import os, sys, re, cmd, random, psutil
 from os.path import basename
 from pathlib import Path
 from mutagen import File as MutaFile
+from lib.print_utils import wr
 
 # Source directories for your video files
 DATA_DIRS = [ 'put all of your', 'audio file paths', 'in this list' ]
@@ -76,9 +77,6 @@ def choose_album(path_list, series_top_dir):
 	return series_list
 
 
-# Quick shortcut to wrap strings in quotes
-def qq(s):
-	return '"{}"'.format(s)
 
 try:
 	# TODO: ADD SUPPORT FOR PLAYING A RANDOM ALBUM
@@ -88,7 +86,7 @@ try:
 	# 	sname = sname[sname.index('tv_shows') + 1].split('_')
 	# 	sname = ' '.join(sname).title()
 	# 	print('\nplaying {}\n'.format(sname))
-	# 	arg_list = [qq(MEDIA_PLAYER)] + [qq(f) for f in series]
+	# 	arg_list = [wr(MEDIA_PLAYER, '"')] + [wr(f, '"') for f in series]
 	# 	os.execv(MEDIA_PLAYER, arg_list)
 
 	if any(genre in sys.argv for genre in genres(DATA_DIRS)):
@@ -103,6 +101,7 @@ try:
 	
 	print('\n' + f'full path: "{s}"')
 	
+	# TODO: get TITLE and ARTIST from Mutagen
 	print(f'playing "{basename(s)}"', end='\n\n')
 
 	# qq() function is needed here because spaces
@@ -110,4 +109,4 @@ try:
 	os.execv(MEDIA_PLAYER, [qq(MEDIA_PLAYER), qq(s)])
 
 except Exception as e:
-	print('\n{}\n'.format(e))
+	print(wr(e, '\n'))

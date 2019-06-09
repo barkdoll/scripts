@@ -4,9 +4,12 @@
 # 		that bypasses DATA_DIRS variable
 
 import os, sys, re, cmd
+from os.path import basename
 import random
 import psutil
 from pathlib import Path
+from lib.print_utils import wr
+
 
 # Source directories for your video files
 DATA_DIRS = [ 'put all of your', 'video file paths', 'in this list' ]
@@ -85,10 +88,6 @@ def chooseMovie(path_list, movie_top_dir):
 	return m
 
 
-# Quick shortcut to wrap strings in quotes
-def qq(s):
-	return '"{}"'.format(s)
-
 
 try:
 	if '--series' in sys.argv:
@@ -96,24 +95,23 @@ try:
 		sname = series[-1].split('\\')
 		sname = sname[sname.index('tv_shows') + 1].split('_')
 		sname = ' '.join(sname).title()
-		print('\nplaying {}\n'.format(sname))
-		arg_list = [qq(MEDIA_PLAYER)] + [qq(f) for f in series]
+		print(wr(f'playing {sname}', '\n'))
+		arg_list = [wr(MEDIA_PLAYER, '"')] + [wr(f, '"') for f in series]
 		os.execv(MEDIA_PLAYER, arg_list)
 
 	elif '--movie' in sys.argv:
 		movie = chooseMovie(DATA_DIRS, MOVIE_DIR_IDENTIFIER)
-		os.execv(MEDIA_PLAYER, [qq(MEDIA_PLAYER), qq(movie)])
+		os.execv(MEDIA_PLAYER, [wr(MEDIA_PLAYER, '"'), wr(movie, '"')])
 
 	else:
 		# Chooses one random video file
 		p = chooseOne(DATA_DIRS)
-		print('\nfull path:', '"{}"'.format(p))
+		print('\n' + f'full path: "{p}"')
 		
-		basename = p.split('\\')[-1]
-		print('playing "{}"\n'.format(basename))
+		print('playing "{basename(p)}"')
 		# qq() function is needed here because spaces
 		# must be escaped in file paths when passed as arguments
-		os.execv(MEDIA_PLAYER, [qq(MEDIA_PLAYER), qq(p)])
+		os.execv(MEDIA_PLAYER, [wr(MEDIA_PLAYER, '"'), wr(p, '"')])
 
 except Exception as e:
-	print('\n{}\n'.format(e))
+	print(wr(e, '\n'))
