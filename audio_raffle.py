@@ -1,8 +1,16 @@
-import os, sys, re, cmd, random, psutil
+
+import os
 from os.path import basename
+import sys
+import re
+import cmd
+import random
 from pathlib import Path
+
 from mutagen import File as MutaFile
+
 from lib.print_utils import wr
+
 
 # Source directories for your video files
 DATA_DIRS = [ 'put all of your', 'audio file paths', 'in this list' ]
@@ -12,7 +20,7 @@ MEDIA_PLAYER = 'C:\\Program Files\\change\\this\\path\\to\\your\\MediaPlayer.exe
 
 def is_audio(f, 
 	audio_formats=('.mp3', '.m4a', '.ogg', '.wma', '.flac', '.wav')):
-	return f.endswith(audio_formats):
+	return f.endswith(audio_formats)
 
 
 def genres(path_list):
@@ -104,9 +112,7 @@ try:
 	# TODO: get TITLE and ARTIST from Mutagen
 	print(f'playing "{basename(s)}"', end='\n\n')
 
-	# qq() function is needed here because spaces
-	# must be escaped in file paths when passed as arguments
-	os.execv(MEDIA_PLAYER, [qq(MEDIA_PLAYER), qq(s)])
+	os.execv(MEDIA_PLAYER, [wr(MEDIA_PLAYER, '"'), wr(s, '"')])
 
 except Exception as e:
 	print(wr(e, '\n'))
