@@ -19,11 +19,9 @@ MOVIE_DIR_IDENTIFIER = 'movie folder name goes here'  # example: 'movies'
 MEDIA_PLAYER = 'C:\\Program Files\\change\\this\\path\\to\\your\\MediaPlayer.exe'
 
 
-def isVideo(f):
-	if f.endswith(('.mkv', '.mp4', '.avi', '.mov', '.flv')):
-		return True
-	else:
-		return False
+def is_video(f, 
+	video_formats=('.mkv', '.mp4', '.avi', '.mov', '.flv')):
+	return f.endswith(video_formats):
 
 
 def playerRunning(player):
@@ -52,7 +50,7 @@ def generateSelectionList(data_path_list):
 		for root, directory, files in os.walk(root_folder):
 			for fname in files:
 				fpath = root + '\\' + fname
-				if isVideo(fpath):
+				if is_video(fpath):
 					file_list.append(fpath)
 
 	return file_list
@@ -65,16 +63,16 @@ def chooseOne(path_list):
 
 
 def chooseSeries(path_list, series_top_dir):
-	while True:
-		chosen_folder = random.choice(generateDirList(path_list))
-		if series_top_dir in chosen_folder:
-			break
+	
+	chosen_folder = random.choice(generateDirList(path_list))
+	if series_top_dir not in chosen_folder:
+		return chooseSeries(path_list, series_top_dir)
 
 	series_list = []
 	for root, directory, files in os.walk(chosen_folder):
 		for fname in files:
 			fpath = root + '\\' + fname
-			if isVideo(fpath):
+			if is_video(fpath):
 				series_list.append(fpath)
 	return series_list
 

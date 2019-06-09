@@ -1,18 +1,17 @@
 import os, sys, re, cmd, random, psutil
+from os.path import basename
 from pathlib import Path
-from mutagen import File as mutaFile
+from mutagen import File as MutaFile
 
 # Source directories for your video files
-DATA_DIRS = [ 'put all of your', 'video file paths', 'in this list' ]
+DATA_DIRS = [ 'put all of your', 'audio file paths', 'in this list' ]
 # Path to your media player executable
 MEDIA_PLAYER = 'C:\\Program Files\\change\\this\\path\\to\\your\\MediaPlayer.exe'
 
 
-def isAudio(f):
-	if f.endswith(('.mp3', '.m4a', '.ogg', '.wma', '.flac', '.wav')):
-		return True
-	else:
-		return False
+def is_audio(f, 
+	audio_formats=('.mp3', '.m4a', '.ogg', '.wma', '.flac', '.wav')):
+	return f.endswith(audio_formats):
 
 
 def genres(path_list):
@@ -21,26 +20,26 @@ def genres(path_list):
 		for root, directory, files in os.walk(folder):
 			for fname in files:
 				fpath = root + '\\' + fname
-				if isAudio(fpath):
+				if is_audio(fpath):
 					# I haven't figured out the most 
 					# semantic way to read genre tags so 
 					# for now, this works by grabbing it 
 					# from the TCON property 
-					if mutaFile(fpath) and mutaFile(fpath).tags.get('TCON'):
-						genre = str( mutaFile(fpath).tags.get('TCON') ).lower()
+					if MutaFile(fpath) and MutaFile(fpath).tags.get('TCON'):
+						genre = str( MutaFile(fpath).tags.get('TCON') ).lower()
 						if genre not in genre_list:
 							genre_list.append(genre)
 	# common construct for removing duplicate list values
 	return genre_list
 
 
-def getGenre(file):
-	if mutaFile(file) and mutaFile(file).tags.get('TCON'):
-		file_meta_genre = str( mutaFile(file).tags.get('TCON') ).lower()
+def get_genre(file):
+	if MutaFile(file) and MutaFile(file).tags.get('TCON'):
+		file_meta_genre = str( MutaFile(file).tags.get('TCON') ).lower()
 		return file_meta_genre
 
 
-def generateDirList(data_path_list):
+def generate_dir_list(data_path_list):
 	dir_list = []
 	for root_folder in data_path_list:
 		dir_list += [
@@ -51,20 +50,20 @@ def generateDirList(data_path_list):
 	return dir_list
 
 
-def generateSelectionList(data_path_list):
+def generate_select_list(data_path_list):
 	file_list = []
 	for root_folder in data_path_list:
 		for root, directory, files in os.walk(root_folder):
 			for fname in files:
 				fpath = root + '\\' + fname
-				if isAudio(fpath):
+				if is_audio(fpath):
 					file_list.append(fpath)
 
 	return file_list
 
-def chooseAlbum(path_list, series_top_dir):
+def choose_album(path_list, series_top_dir):
 	while True:
-		chosen_folder = random.choice(generateDirList(path_list))
+		chosen_folder = random.choice(generate_dir_list(path_list))
 		if series_top_dir in chosen_folder:
 			break
 
@@ -72,7 +71,7 @@ def chooseAlbum(path_list, series_top_dir):
 	for root, directory, files in os.walk(chosen_folder):
 		for fname in files:
 			fpath = root + '\\' + fname
-			if isAudio(fpath):
+			if is_audio(fpath):
 				series_list.append(fpath)
 	return series_list
 
@@ -84,7 +83,7 @@ def qq(s):
 try:
 	# TODO: ADD SUPPORT FOR PLAYING A RANDOM ALBUM
 	# if '--album' in sys.argv:
-	# 	series = chooseAlbum()
+	# 	series = choose_album()
 	# 	sname = series[-1].split('\\')
 	# 	sname = sname[sname.index('tv_shows') + 1].split('_')
 	# 	sname = ' '.join(sname).title()
@@ -94,17 +93,17 @@ try:
 
 	if any(genre in sys.argv for genre in genres(DATA_DIRS)):
 		choice_list = [ 
-			song for song in generateSelectionList(DATA_DIRS) 
-			if getGenre(song) in sys.argv
+			song for song in generate_select_list(DATA_DIRS) 
+			if get_genre(song) in sys.argv
 		]
 		s = random.choice(choice_list)
 	else:
 		# Chooses one random video file
-		s = random.choice(generateSelectionList(DATA_DIRS))
+		s = random.choice(generate_select_list(DATA_DIRS))
 	
-	print('\nfull path:', '"{}"'.format(s))
-	basename = s.split('\\')[-1]
-	print('playing "{}"\n'.format(basename))
+	print('\n' + f'full path: "{s}"')
+	
+	print(f'playing "{basename(s)}"', end='\n\n')
 
 	# qq() function is needed here because spaces
 	# must be escaped in file paths when passed as arguments
