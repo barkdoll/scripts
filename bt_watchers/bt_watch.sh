@@ -6,7 +6,7 @@ ip=$(ip -4 addr show tun0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 echo "" # padding
 echo "watching IP for OpenVPN virtual adapter (tun0)"
 # Bash equivalent of a ternary
-[ "$ip" == "" ] && echo "current: NONE" || echo "current: $ip"
+[ -z "$ip" ] && echo "current: NONE" || echo "current: $ip"
 # Start qBittorrent if tun0 address found (which means VPN is running)
 [ "$ip" ] && (qbittorrent&) || echo "client not started; no tun0 address found"
 echo "" # padding
