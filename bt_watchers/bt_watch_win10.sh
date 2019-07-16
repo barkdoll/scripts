@@ -9,7 +9,7 @@ ip=$(ipconfig | grep 'TAP' -A 7 | grep 'IPv4' | awk '{print $14}')
 echo "" # padding
 echo "watching IP for OpenVPN virtual adapter (TAP)"
 # Bash equivalent of a ternary
-[ "$ip" == "" ] && echo "current: NONE" || echo "current: $ip"
+[ -z "$ip" ] && echo "current: NONE" || echo "current: $ip"
 echo "" # padding
 
 timer=$SECONDS # magic $SECONDS variable built into bash
@@ -37,11 +37,11 @@ while [ $change_ctr -le 2 ]; do
 
 		printf "change detected \t\t\t\t $(date +"%Y.%m.%d %H:%M:%S")\n"
 		echo "killing qBittorrent"
-		if [ "$current" == "" ]; then 
+		if [ -z "$current" ]; then 
 			echo "assigning new address or disconnected..."
 		fi
 		
-		while [ "$current" == "" ]; do
+		while [ -z "$current" ]; do
 			current=$(ipconfig | grep 'TAP' -A 7 | grep 'IPv4' | awk '{print $14}')
 			sleep 0.25
 		done
@@ -60,7 +60,7 @@ while [ $change_ctr -le 2 ]; do
 		ip=$current
 		printf "new address assigned: $ip \t\t $(date +"%Y.%m.%d %H:%M:%S")\n"
 
-		echo "starting qBittorrent"
+		echo "starting P2P client"
 		"$BT_CLIENT" & # put it in the background
 
 		printf "changed "$change_ctr"x in current interval (hourly) \t $(date +"%Y.%m.%d %H:%M:%S")\n"

@@ -2,7 +2,7 @@
 # alias bt="~/scripts/bt_watch.sh | tee ~/scripts/bt-$(date +"%Y%m%d-%Hh%Mm").log"
 
 # Get initial IP
-ip=$(ifconfig | grep 'tun0' -A 7 | grep 'inet addr' | sed 's/.*inet addr:\([0-9\.]*\).*/\1/')
+ip=$(ip -4 addr show tun0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 echo "" # padding
 echo "watching IP for OpenVPN virtual adapter (tun0)"
 # Bash equivalent of a ternary
@@ -29,7 +29,7 @@ while [ $change_ctr -le 2 ]; do
 		fi
 	fi
 
-	current=$(ifconfig | grep 'tun0' -A 7 | grep 'inet addr' | sed 's/.*inet addr:\([0-9\.]*\).*/\1/')
+	current=$(ip -4 addr show tun0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 
 	if [ "$current" != "$ip" ]; then
 		# Kill qBittorrent if process exists
@@ -37,12 +37,12 @@ while [ $change_ctr -le 2 ]; do
 
 		printf "$(date +"%Y.%m.%d %H:%M:%S")\t change detected\n"
 		echo "killing qBittorrent"
-		if [ "$current" == "" ]; then 
+		if [ -z "$current" ]; then 
 			echo "assigning new address or disconnected..."
 		fi
 		
-		while [ "$current" == "" ]; do
-			current=$(ifconfig | grep 'tun0' -A 7 | grep 'inet addr' | sed 's/.*inet addr:\([0-9\.]*\).*/\1/')
+		while [ -z "$current" ]; do
+			current=$(ip -4 addr show tun0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 			sleep 0.25
 		done
 
@@ -59,7 +59,7 @@ while [ $change_ctr -le 2 ]; do
 		ip=$current
 		printf "$(date +"%Y.%m.%d %H:%M:%S")\t new address assigned: $ip"
 
-		echo "starting qBittorrent"
+		echo "starting P2P client"
 		qbittorrent& # start client in the background
 
 		printf "$(date +"%Y.%m.%d %H:%M:%S")\t changed "$change_ctr"x in current interval (hourly)\n"
