@@ -58,14 +58,16 @@ def log_skipped(file_list, query_name):
 
 
 def create_headline(search_terms):
-    return u8enc('\n'.join((
+    
+    headline = '\n'.join((
         'Sentences mined for ' + ', '.join(search_terms),
         '================================'
-        '\n\n\n'
-    )))
+        '\n\n\n'))
+
+    return u8enc(headline)
 
 
-def genereate_regex(search, mode):
+def generate_regex(search, mode):
     return {
         'novel': f'((?<=。)[^。]*{search}[^。]*。)',
         'subs': f'(.*{search}.*)'
@@ -116,8 +118,7 @@ if __name__ == '__main__':
     if sum(1 for i in query if i.isdigit()) > 1:
         print(wr(
             'Only put one character limit number in your query please :)',
-            '\n')
-        )
+            '\n') )
         quit()
 
     modes = ('--subs', '--novel')
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     else:
         mode = 'novel'
 
-    aozora_mode = True if mode == 'novel' else False
+    aozora_mode = mode == 'novel'
 
     # Initial setup before search
     if (len(query) > 1) and any(q.isdigit() for q in query):
@@ -161,7 +162,7 @@ if __name__ == '__main__':
         '({})'.format('|'.join(targets)) if len(targets) > 1
         else f'({targets[0]})')
 
-    rex = genereate_regex(rex_target, mode)
+    rex = generate_regex(rex_target, mode)
 
     print(f'''Here's Rexy (regex): {rex}''')
     # The range [:-1] removes tailing backslash
