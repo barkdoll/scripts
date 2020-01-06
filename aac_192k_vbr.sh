@@ -1,58 +1,69 @@
-# Converts FLAC files to my preferred 
+#########################################
+# Converts FLAC files to my preferred
 # lossy quality/format specs:
-# AAC (*.m4a) files @ 192kbps (VBR)
+# 	AAC (*.m4a) files @ 192kbps (VBR)
+#
+# Requirements:
+#	- UNIX-like shell environment
+#	- GNU find
+#	- realpath
+#	- ffmpeg
+#########################################
 
-# Requirements: 
+aac_192k() {
+	input="${1}"
+	# removes trailing slashes from the target directory ($2) 
+	# and renames the FLAC file with m4a
+	output="$(echo "$2" | sed 's:/*$::')/$(basename "${1%%.flac}.m4a")"
+	
+	ffmpeg -y -i "$input" -ab 192k -map_metadata 0 "$output"
 
-  # qaac - https://sites.google.com/site/qaacpage/cabinet
+	# Test file paths with:
+	# echo "$input"
+	# echo "-> $output"
+	# echo " "
+}
 
-  # libFLAC.dll - http://www.rarewares.org/lossless.php
-  # OR go into the dependencies folder (same name as this script),
-  # extract either 32/64-bit version depending on your OS,
-  # rename libFLAC_dynamic.dll to libFLAC.dll,
-  # and add it to any directory in your $PATH
+# so that sub-shells can see it
+export aac_192k
 
 
-# Create subfolder
-subfolder="${PWD##*/}"
-if [ ! -d "$subfolder" ]; then
-	mkdir "$subfolder"
-  echo "created sub-directory $subfolder";
+if [ -z "$1" -o -z "$2" -o -n "$3" ]; then
+	echo "Exactly two arguments required:"
+	echo "$(basename "$0") <input-path> <output-path>"
+	exit 1
 fi
 
-# Rename to qaac (remove 64) 
-# if using 32-bit version
-echo "initializing encode job...";
-qaac64 *.flac -a192 -d "$subfolder";
+source="$(realpath "$1")"
+target="$(realpath "$2")"
 
-printf "\n\n"
+# Create subfolder with the same name
+# as the source directory (which should be the album folder)
+working_dir="$source/$(basename "${source}")"
+[ ! -d "$working_dir" ] && mkdir "$working_dir" && echo "created sub-directory '$working_dir'"
 
-# Copy cover images
-for image in cover*.jpg; do
-  echo "searching for cover art...";
-  cp "$image" "$subfolder/";
+# echo "initializing encode job..."
+# removed  -printf "%f\n"
+find "$source" -maxdepth 1 -name "*.flac" | while read file; 
+do
+	aac_192k "$(realpath "$file")" "${working_dir}"
 done
 
-# Move subfolder to lossy audio directory
-target=$(cd .. && echo `pwd`);
-target="${target##*/}";
+# Copy cover images
+echo "searching for cover art..."
+for image in "$source"/cover*; do
+	case "$image" in 
+	*.jpg | *.jpeg | *.png | *.tiff | *.gif)
+		echo "$image"
+		cp "$image" "${working_dir}/";
+		;;
+	*) # default fallback
+	 	true
+	 	;;
+	esac
+done
 
-# target directory
-t_dir="/m/audio_lossy/$target";
-
-if [ ! -d "$t_dir" ]; then
-  echo "target directory not found";
-  echo "creating target directory...";
-  mkdir "$t_dir";
-  echo "created target directory $t_dir";
-else
-  echo "found target directory $t_dir";
-fi
-
-
-mv "$subfolder" "$t_dir/";
-echo "moved $subfolder to $t_dir/$subfolder";
-
+mv "$working_dir" "$target/"
+echo "moved to '$target/$(basename "$working_dir")'"
 echo "encoding job finished!"
-printf "\n\n";
 exit 0
