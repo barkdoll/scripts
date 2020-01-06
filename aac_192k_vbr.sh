@@ -63,7 +63,8 @@ for image in "$source"/cover*; do
 	esac
 done
 
-mv "$working_dir" "$target/"
-echo "moved to '$target/$(basename "$working_dir")'"
+if [ mv "$working_dir" "$target/" ]; then
+	echo "moved to '$target/$(basename "$working_dir")'"
+fi
 echo "encoding job finished!"
 exit 0
