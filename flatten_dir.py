@@ -9,9 +9,7 @@ def flatten_dir(target_dir, destination, options):
         if child.is_dir():
             flatten_dir(child, destination, options)
         else:
-            if child.parent == destination:
-                pass
-            else:
+            if child.parent != destination:
                 transport = Path(destination, child.name)
                 if not options.dry_run:
                     if options.delete:
