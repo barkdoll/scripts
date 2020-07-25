@@ -8,6 +8,14 @@ def flatten_dir(target_dir, destination, options):
     for child in target_dir.iterdir():
         if child.is_dir():
             flatten_dir(child, destination, options)
+            if (
+                options.delete
+                and not options.dry_run
+                and child != target_dir
+                and child != destination
+                and not any(child.iterdir()) # is the dir empty?
+            ):
+                child.rmdir()
         else:
             if child.parent != destination:
                 transport = Path(destination, child.name)
